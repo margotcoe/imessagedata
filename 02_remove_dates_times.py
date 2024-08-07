@@ -1,15 +1,12 @@
 import re
 import configparser
 
-# Load the configuration file
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# Retrieve variables from the config file
 sender = config.get('settings', 'sender')
 receiver = config.get('settings', 'receiver')
 
-# Define the file paths
 input_file = f'txt_files/{sender}_tagged.txt'
 output_file = f'txt_files/{sender}_tagged_nodates.txt'
 
@@ -30,7 +27,6 @@ def clean_message_file(input_file, output_file):
             else:
                 outfile.write(line)
 
-# Run the function
 clean_message_file(input_file, output_file)
 
 print(f"File exported to '{output_file}'.")

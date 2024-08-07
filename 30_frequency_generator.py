@@ -3,7 +3,6 @@ import csv
 from collections import defaultdict, Counter
 import configparser
 
-# Load configuration
 config = configparser.ConfigParser()
 config.read('config.ini')
 sender = config.get('settings', 'sender')
@@ -16,7 +15,6 @@ def parse_messages(file_path):
     with open(file_path, 'r') as file:
         content = file.read()
 
-    # Regex pattern to match messages with start and end markers
     pattern = r'\{ Message \d+ Start \}\n(.*?)\n(?:Reactions:\n(.*?)\n)?(.*?)(?:\n\{ Message \d+ End \})'
     matches = re.findall(pattern, content, re.MULTILINE | re.DOTALL)
 
@@ -25,8 +23,8 @@ def parse_messages(file_path):
         sender, reactions, text = match
         sender = sender.strip()
         text = text.strip()
-        if text:  # Only add messages with non-empty text
-            # Handling case where reactions or attachments might be present
+        if text:  
+
             if reactions:
                 text += f" Reactions: {reactions.strip()}"
             messages.append((sender, text))
@@ -40,7 +38,7 @@ def count_words(messages):
     sender_word_counts = defaultdict(Counter)
     
     for sender, text in messages:
-        # Extract words and ignore numbers, handle contractions and possessives
+        
         words = re.findall(r'\b(?:[a-zA-Z]+(?:\'[a-zA-Z]+)?)+\b', text.lower())
         sender_word_counts[sender].update(words)
     
@@ -54,7 +52,6 @@ def prepare_data_for_csv(word_counts):
     for counts in word_counts.values():
         all_words.update(counts.keys())
     
-    # Create a dictionary with word counts for receiver and sender, and calculate differences
     csv_data = []
     total_counts = Counter()
     receiver_counts = word_counts.get(receiver, Counter())
@@ -80,7 +77,6 @@ def write_results_to_csv(csv_data, output_file):
     """
     Writes the word counts and total counts to a CSV file in the specified format.
     """
-    # Define the fieldnames based on the keys in csv_data
     fieldnames = ['Word', 'Total', receiver, sender, 'Difference']
     
     with open(output_file, 'w', newline='') as csvfile:
@@ -89,7 +85,6 @@ def write_results_to_csv(csv_data, output_file):
         writer.writeheader()
         writer.writerows(csv_data)
         
-        # Adding total counts at the end
         writer.writerow({})
         writer.writerow({'Word': 'Total', 'Total': sum(row['Total'] for row in csv_data), receiver: '', sender: '', 'Difference': ''})
 

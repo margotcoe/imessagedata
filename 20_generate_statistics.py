@@ -4,7 +4,6 @@ from collections import defaultdict
 import statistics
 import configparser
 
-# Load configuration
 config = configparser.ConfigParser()
 config.read('config.ini')
 sender = config.get('settings', 'sender')

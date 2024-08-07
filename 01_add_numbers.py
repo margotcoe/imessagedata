@@ -1,27 +1,19 @@
 import re
 import configparser
 
-# Load the configuration file
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# Retrieve variables from the config file
 sender = config.get('settings', 'sender')
 receiver = config.get('settings', 'receiver')
 
-# Define the file paths
-input_file_path = f'txt_files/{sender}_pretag.txt'  # Use the sender variable for the input file path
-output_file_path = f'txt_files/{sender}_tagged.txt'  # Use the sender variable for the output file path
-
-# Define the pattern for message dates
+input_file_path = f'txt_files/{sender}_pretag.txt'
+output_file_path = f'txt_files/{sender}_tagged.txt'  
 date_pattern = r'\b[A-Za-z]{3} \d{2}, \d{4}\b'
 
-# Function to split the text into messages based on the date pattern
 def split_messages(text):
-    # Find all date matches
     dates = [match.start() for match in re.finditer(date_pattern, text)]
 
-    # Split text into messages based on the dates
     messages = []
     for i in range(len(dates)):
         start = dates[i]
@@ -30,14 +22,11 @@ def split_messages(text):
 
     return messages
 
-# Read the contents of the input file
 with open(input_file_path, 'r') as file:
     data = file.read()
 
-# Split the data into messages
 messages = split_messages(data)
 
-# Write all messages to the output file with { } indicating start and end
 with open(output_file_path, 'w') as file:
     for i, message in enumerate(messages, start=1):
         file.write(f"{{ Message {i} Start }}\n")
