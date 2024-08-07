@@ -2,21 +2,17 @@ import re
 import os
 import configparser
 
-# Load the configuration file
 config = configparser.ConfigParser()
 config.read('config.ini')
 
-# Retrieve variables from the config file
 sender = config.get('settings', 'sender')
 receiver = config.get('settings', 'receiver')
+input = config.get('settings', 'input')
 
-# Define the input file path
-input_file = 'input/+12064022950.txt'
+input_file = '{input}' 
 
-# Define the output file path (current working directory)
 output_file = f'txt_files/{sender}_pretag.txt'
 
-# Define the text replacements
 replacements = {
     r'\+12064022950': sender,  # Use raw string for the phone number to escape the '+'
     r'Read by them': f'Read by {sender}',
