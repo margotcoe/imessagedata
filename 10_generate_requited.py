@@ -1,9 +1,15 @@
 import csv
 from datetime import datetime
 import re
+import configparser
 
-input_file_path = 'txt_files/elly_dates+sender.txt'
-output_file_path = 'outputs/requited/elly_dates_and_senders.csv'
+config = configparser.ConfigParser()
+config.read('config.ini')
+sender = config.get('settings', 'sender')
+receiver = config.get('settings', 'receiver')
+
+input_file_path = f'txt_files/{sender}_dates+sender.txt'
+output_file_path = f'outputs/requited/{sender}_dates_and_senders.csv'
 
 def parse_dates_and_senders(file_path):
     records = []
@@ -11,7 +17,6 @@ def parse_dates_and_senders(file_path):
     with open(file_path, 'r') as file:
         content = file.read()
 
-    # Split content by '{ Message End }'
     blocks = content.split('{ Message End }')
 
     for block in blocks:
@@ -19,30 +24,20 @@ def parse_dates_and_senders(file_path):
         if not block:
             continue
 
-
-        # Split the block into lines
         lines = block.split('\n')
-
-        # Remove the '{ Message Start }' line
         lines = [line.strip() for line in lines if line.strip() and line.strip() != '{ Message Start }']
 
-        
-        # Check if we have exactly 2 lines (date and sender)
         if len(lines) == 2:
             date_line = lines[0]
             sender_line = lines[1]
 
-            # Validate and extract date
             date_match = re.match(r'^(\w+ \d{2}, \d{4})$', date_line)
             if date_match:
                 date_str = date_match.group(1)
                 date = datetime.strptime(date_str, '%b %d, %Y').date()
 
-                # Validate sender line
-                if sender_line in ['Margot', 'Elly']:
+                if sender_line in [receiver, sender]:
                     records.append({'Date': date.strftime('%Y-%m-%d'), 'Sender': sender_line})
-                    
-               
 
     return records
 

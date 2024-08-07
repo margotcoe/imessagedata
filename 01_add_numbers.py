@@ -1,8 +1,17 @@
 import re
+import configparser
+
+# Load the configuration file
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+# Retrieve variables from the config file
+sender = config.get('settings', 'sender')
+receiver = config.get('settings', 'receiver')
 
 # Define the file paths
-input_file_path = 'txt_files/elly_pretag.txt'  # Replace with your actual input file path
-output_file_path = 'txt_files/elly_tagged.txt'
+input_file_path = f'txt_files/{sender}_pretag.txt'  # Use the sender variable for the input file path
+output_file_path = f'txt_files/{sender}_tagged.txt'  # Use the sender variable for the output file path
 
 # Define the pattern for message dates
 date_pattern = r'\b[A-Za-z]{3} \d{2}, \d{4}\b'
@@ -11,14 +20,14 @@ date_pattern = r'\b[A-Za-z]{3} \d{2}, \d{4}\b'
 def split_messages(text):
     # Find all date matches
     dates = [match.start() for match in re.finditer(date_pattern, text)]
-    
+
     # Split text into messages based on the dates
     messages = []
     for i in range(len(dates)):
         start = dates[i]
         end = dates[i + 1] if i + 1 < len(dates) else len(text)
         messages.append(text[start:end].strip())
-    
+
     return messages
 
 # Read the contents of the input file

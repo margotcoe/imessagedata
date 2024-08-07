@@ -2,13 +2,20 @@ import re
 from datetime import datetime, timedelta
 from collections import defaultdict
 import statistics
+import configparser
 
-input_file_path = 'txt_files/elly_tagged.txt'
-output_file_path = 'outputs/statistics/elly_message_statistics.md'
+# Load configuration
+config = configparser.ConfigParser()
+config.read('config.ini')
+sender = config.get('settings', 'sender')
+receiver = config.get('settings', 'receiver')
+
+input_file_path = f'txt_files/{sender}_tagged.txt'
+output_file_path = f'outputs/statistics/{sender}_message_statistics.md'
 
 date_pattern = r'(\b[A-Za-z]{3} \d{2}, \d{4}\b)'
 message_pattern = r'\{ Message \d+ Start \}(.*?)\{ Message \d+ End \}'
-read_by_pattern = r'\(Read by (Margot|Elly) after (.*?)(?:\)|$)'
+read_by_pattern = rf'\(Read by ({receiver}|{sender}) after (.*?)(?:\)|$)'
 
 def extract_messages_dates_read_times(text):
     messages = re.findall(message_pattern, text, re.DOTALL)
@@ -47,7 +54,7 @@ for message, date in zip(messages, dates):
     if year == 2021:
         continue
 
-    sender_match = re.search(r'(Margot|Elly)', message)
+    sender_match = re.search(rf'({receiver}|{sender})', message)
     if sender_match:
         sender = sender_match.group(1)
         sender_count[sender] += 1
@@ -126,13 +133,13 @@ with open(output_file_path, 'w') as file:
             file.write(f'- {year}: {count}\n')
 
     file.write('\n## Average Read Times\n')
-    for sender in ['Margot', 'Elly']:
-        all_times = read_times_by_sender[sender]
+    for sender_name in [receiver, sender]:
+        all_times = read_times_by_sender[sender_name]
         avg_total = average_read_times(all_times)
-        avg_by_year = average_read_times_by_year(read_times_by_year[sender])
+        avg_by_year = average_read_times_by_year(read_times_by_year[sender_name])
         avg_under_hour, avg_over_hour = average_read_times_by_threshold(all_times)
         
-        file.write(f'### {sender}\n')
+        file.write(f'### {sender_name}\n')
         file.write(f'- **Average Total Read Time:** {avg_total} seconds\n')
         file.write(f'- **Average Read Time by Year:**\n')
         for year, avg in sorted(avg_by_year.items()):
@@ -168,7 +175,7 @@ with open(output_file_path, 'w') as file:
     file.write(f'- **Percentage of Days with Messages (2024 so far):** {percentage_2024}%\n')
 
     file.write('\n## Attachments Sent\n')
-    for sender, count in attachment_count.items():
-        file.write(f'- {sender}: {count}\n')
+    for sender_name, count in attachment_count.items():
+        file.write(f'- {sender_name}: {count}\n')
 
 print(f"Statistics exported to '{output_file_path}'.")
